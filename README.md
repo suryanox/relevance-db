@@ -70,7 +70,7 @@ Three storage heads. One fusion layer. Zero config from the user.
 
 **Intent-routed retrieval.** Every query is classified as `what / why / when / who / how` before retrieval. A `why` query hits the graph head first. A `when` query hits the timeline head first. A `what` query starts with semantic. No other RAG library does this routing.
 
-**Intent-weighted fusion.** Results from all heads are combined using a weight matrix derived from query intent — not a fixed average. Graph results matter more for `who` queries. Timeline decay matters more for `when` queries.
+**Intent-weighted fusion.** Results from all heads are combined using a weight matrix derived from query intent not a fixed average. Graph results matter more for `who` queries. Timeline decay matters more for `when` queries.
 
 ## License
 
