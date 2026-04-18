@@ -1,16 +1,15 @@
 """
 pipeline.py — ingest orchestrator.
 
-Ties together: loader → chunker → entity_extractor → all three stores.
-
-Stages:
+Full flow:
   1. Load    — parse file into Document
   2. Chunk   — split into indexable Chunks
   3. Extract — entities + relations via LLM
-  4. Store   — write to all three heads
+  4. Disambiguate — assign sense namespace per chunk (novel)
+  5. Store   — write to all three heads
      a. timeline_store: record version + decay weight
-     b. semantic_store: embed + store chunks (namespace="default" for now)
-     c. graph_store:    entities + relations from extractor
+     b. semantic_store: embed + store chunks under correct namespace
+     c. graph_store:    entities + relations
 """
 
 from __future__ import annotations
@@ -18,6 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from relevancedb.ingest.auto_disambiguator import AutoDisambiguator
 from relevancedb.ingest.chunker import chunk
 from relevancedb.ingest.entity_extractor import EntityExtractor
 from relevancedb.ingest.loader import Document, load, load_dir
@@ -54,7 +54,7 @@ class IngestPipeline:
         semantic:   SemanticStore instance.
         graph:      GraphStore instance.
         timeline:   TimelineStore instance.
-        llm_model:  litellm model string for entity extraction.
+        llm_model:  litellm model string for extraction + disambiguation.
         chunk_size: Max chars per chunk.
         overlap:    Overlap chars between chunks.
         verbose:    Print progress per document.
@@ -77,6 +77,7 @@ class IngestPipeline:
         self.overlap = overlap
         self.verbose = verbose
         self.extractor = EntityExtractor(llm_model=llm_model)
+        self.disambiguator = AutoDisambiguator(llm_model=llm_model)
 
     def run(self, sources: list[Path]) -> IngestSummary:
         summary = IngestSummary()
@@ -95,6 +96,7 @@ class IngestPipeline:
             print(f"[relevancedb] done — {summary}")
 
         return summary
+
 
     def _collect_docs(
         self, sources: list[Path], summary: IngestSummary
@@ -129,11 +131,30 @@ class IngestPipeline:
         # 2. chunk
         chunks = chunk(doc, max_chars=self.chunk_size, overlap_chars=self.overlap)
 
-        # 3. semantic — namespace="default" until disambiguator is wired
-        self.semantic.add(chunks, namespace="default")
-
-        # 4. entity extraction → graph
+        # 3. extract entities — names become disambiguation candidates
         extraction = self.extractor.extract(doc)
+        candidate_terms = [e.name for e in extraction.entities]
+
+        if self.verbose:
+            print(f"  entities found: {candidate_terms}")
+
+        # 4. disambiguate — assign sense namespace per chunk
+        disambig_results = self.disambiguator.assign_namespaces(
+            chunks, candidate_terms
+        )
+
+        # 5a. semantic — store each chunk under its resolved namespace
+        # group chunks by namespace for efficient batch adds
+        namespace_groups: dict[str, list] = {}
+        for chunk_obj, disambig in zip(chunks, disambig_results):
+            ns = disambig.namespace
+            namespace_groups.setdefault(ns, []).append(chunk_obj)
+
+        for namespace, ns_chunks in namespace_groups.items():
+            if self.verbose:
+                print(f"  namespace={namespace!r} → {len(ns_chunks)} chunks")
+            self.semantic.add(ns_chunks, namespace=namespace)
+
         self.graph.add_entities(extraction.entities)
         self.graph.add_relations(extraction.relations)
 
