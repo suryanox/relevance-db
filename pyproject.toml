@@ -10,7 +10,8 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "lancedb (>=0.30.2,<0.31.0)",
-    "sentence-transformers (>=5.4.1,<6.0.0)"
+    "sentence-transformers (>=5.4.1,<6.0.0)",
+    "litellm (==1.65.0)"
 ]
 
 
