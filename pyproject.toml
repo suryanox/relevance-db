@@ -5,18 +5,19 @@ description = "Retrieval that understands relevance, not just similarity"
 authors = [
     {name = "suryanox"}
 ]
+keywords = ["rag", "retrieval", "vector-database", "knowledge-graph", "llm"]
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "lancedb (>=0.30.2,<0.31.0)",
     "sentence-transformers (>=5.4.1,<6.0.0)",
-    "litellm (==1.65.0)"
+    "litellm (==1.65.0)",
+    "kuzu (>=0.11.3,<0.12.0)"
 ]
 
 
 [tool.poetry]
-name = "relevance-db"
 packages = [{ include = "relevancedb", from = "src" }]
 
 
