@@ -1,20 +1,6 @@
-"""
-db.py — public API. The only file users need to know about.
-
-    from relevancedb import RelevanceDB
-
-    db = RelevanceDB(llm_model="gpt-4o-mini")
-    db.ingest(["policy.txt", "notes/"])
-    result = db.query("who approved the retention policy?")
-    print(result.answer)
-    print(result.explain())
-"""
-
 from __future__ import annotations
-
 from pathlib import Path
 from typing import Union
-
 from relevancedb.config import ModelConfig
 from relevancedb.explain.result import RelevanceResult
 from relevancedb.ingest.pipeline import IngestPipeline, IngestSummary
@@ -24,44 +10,38 @@ from relevancedb.store.graph_store import GraphStore
 from relevancedb.store.semantic_store import SemanticStore
 from relevancedb.store.timeline_store import TimelineStore
 
-
 class RelevanceDB:
     """
     Zero-config embedded retrieval database.
 
     Args:
-        llm_model:   litellm-compatible model string. Required unless
-                     RELEVANCEDB_LLM_MODEL env var is set.
+        llm_model: litellm-compatible model string. Required unless
+                   RELEVANCEDB_LLM_MODEL env var is set.
 
-                     OpenAI:    "gpt-4o-mini", "gpt-4o"
-                     Anthropic: "claude-3-haiku-20240307"
-                     Ollama:    "ollama/mistral"  (fully local, no API key)
-                     Groq:      "groq/llama3-8b-8192"
+                   OpenAI:    "gpt-4o-mini", "gpt-4o"
+                   Anthropic: "claude-3-haiku-20240307"
+                   Ollama:    "ollama/mistral"  (fully local, no API key)
+                   Groq:      "groq/llama3-8b-8192"
 
-        embed_model: sentence-transformers model, runs locally.
-                     Default: "BAAI/bge-small-en-v1.5"
+        data_dir:  Where the three DBs are stored on disk.
+                   Default: ./relevancedb_data
 
-        data_dir:    Where the three DBs are stored on disk.
-                     Default: ./relevancedb_data
-
-        top_k:       Default number of results per query. Default: 5
-        verbose:     Print progress during ingest.
+        top_k:     Default number of results per query. Default: 5
+        verbose:   Print progress during ingest.
 
     Raises:
-        ValueError: If llm_model is not provided and RELEVANCEDB_LLM_MODEL
-                    env var is not set.
+        ValueError: If llm_model is not provided and
+                    RELEVANCEDB_LLM_MODEL env var is not set.
     """
 
     def __init__(
         self,
         llm_model: str | None = None,
-        embed_model: str | None = None,
         data_dir: Union[str, Path] = "./relevancedb_data",
         top_k: int = 5,
         verbose: bool = False,
     ) -> None:
-        self.models = ModelConfig(llm_model=llm_model, embed_model=embed_model)
-
+        self.models = ModelConfig(llm_model=llm_model)
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.top_k = top_k
@@ -71,12 +51,8 @@ class RelevanceDB:
             data_dir=self.data_dir / "semantic",
             embed_model=self.models.embed_model,
         )
-        self._graph = GraphStore(
-            data_dir=self.data_dir / "graph",
-        )
-        self._timeline = TimelineStore(
-            data_dir=self.data_dir / "timeline",
-        )
+        self._graph = GraphStore(data_dir=self.data_dir / "graph")
+        self._timeline = TimelineStore(data_dir=self.data_dir / "timeline")
 
         self._pipeline = IngestPipeline(
             semantic=self._semantic,
@@ -85,7 +61,6 @@ class RelevanceDB:
             llm_model=self.models.llm_model,
             verbose=self.verbose,
         )
-
         self._planner = QueryPlanner(
             semantic=self._semantic,
             graph=self._graph,
@@ -95,7 +70,6 @@ class RelevanceDB:
         )
         self._ranker = FusionRanker()
 
-  
     def ingest(
         self,
         sources: Union[str, Path, list[Union[str, Path]]],
@@ -128,7 +102,7 @@ class RelevanceDB:
         Args:
             question: Natural-language question.
             top_k:    Number of results. Overrides instance default.
-            as_of:    ISO date string for point-in-time queries e.g. "2023-06-01"
+            as_of:    ISO date for point-in-time queries e.g. "2023-06-01"
 
         Returns:
             RelevanceResult with .answer, .chunks, .explain()
