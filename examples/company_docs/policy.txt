@@ -1,0 +1,16 @@
+Data Retention Policy — Acme Corp
+Last updated: March 2024
+
+The data retention policy was formally reviewed and updated following the Q1 2024 audit.
+Alice Chen, Head of Compliance, approved the new guidelines on March 15 2024.
+The audit was conducted by the Risk and Compliance team led by Bob Martinez.
+
+Key changes from the previous policy:
+- All server logs must now be retained for 90 days. Previously the limit was 30 days.
+- Customer data must be retained for a minimum of 3 years per the new regulatory requirement.
+- Backup snapshots are taken every 24 hours and retained for 14 days.
+
+The engineering team, led by Sarah Park, is responsible for implementing the technical controls.
+Sarah Park confirmed that the new log rotation scripts were deployed on April 1 2024.
+
+Any exceptions to this policy must be approved by Alice Chen and documented in the policy register.
