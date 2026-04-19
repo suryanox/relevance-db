@@ -1,14 +1,14 @@
 Strawberry Project — Internal Memo
 Date: February 2024
 
-The Strawberry project is Acme Corp's new real-time data pipeline initiative.
+Strawberry is Acme Corp's new real-time data pipeline initiative.
 Project owner: Bob Martinez.
-The Strawberry project was kicked off in January 2024 and is expected to ship in Q3 2024.
+The project was kicked off in January 2024 and is expected to ship in Q3 2024.
 
 Current status:
 - Phase 1 (data ingestion layer) completed by the infrastructure team.
 - Phase 2 (stream processing) is in progress. Lead engineer: Sarah Park.
 - Phase 3 (analytics dashboard) has not started yet.
 
-The Strawberry project depends on the new Kafka cluster approved by Alice Chen in December 2023.
-Budget for the Strawberry project was set at $240,000 for 2024.
+The project depends on the new Kafka cluster approved by Alice Chen in December 2023.
+Budget was set at $240,000 for 2024.

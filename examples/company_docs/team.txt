@@ -3,20 +3,17 @@ Updated: January 2024
 
 Alice Chen
   Role: Head of Compliance
-  Reports to: CEO
   Responsibilities: Policy approvals, regulatory compliance, audit coordination.
 
 Bob Martinez
   Role: Director of Engineering
-  Reports to: CTO
   Responsibilities: Project oversight, budget approvals, team hiring.
-  Current projects: Strawberry project (owner).
+  Current projects: Strawberry (owner).
 
 Sarah Park
   Role: Lead Engineer
   Reports to: Bob Martinez
   Responsibilities: Technical implementation, deployment, code review.
-  Current projects: Strawberry project (phase 2 lead), data retention tooling.
+  Current projects: Strawberry (phase 2 lead), data retention tooling.
 
-The engineering team operates on a two-week sprint cycle.
 All policy-related technical changes require sign-off from Alice Chen before deployment.

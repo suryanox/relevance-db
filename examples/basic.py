@@ -1,53 +1,27 @@
-import os
+import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from relevancedb import RelevanceDB
 
-DOCS_DIR = Path(__file__).parent / "company_docs"
-DATA_DIR = Path(__file__).parent / ".relevancedb_data"
+DOCS = Path(__file__).parent / "company_docs"
+db = RelevanceDB(llm_model="gpt-4o-mini")
 
+db.ingest(DOCS)
 
-def main():
-    db = RelevanceDB(
-        llm_model=os.getenv("RELEVANCEDB_LLM_MODEL", "gpt-4o-mini"),
-        data_dir=DATA_DIR,
-        verbose=True,
-    )
-    print(f"\n{db}\n")
+questions = [
+    "who approved the data retention policy?",
+    "why was the retention policy changed?",
+    "what is the current status of the strawberry project?",
+    "who owns the strawberry project?",
+    "when was the policy last updated?",
+    "who is responsible for implementing the retention controls?",
+]
 
-    print("Ingesting documents...")
-    summary = db.ingest(DOCS_DIR)
-    print(f"\n{summary}\n")
-
-    queries = [
-        # WHO → graph head first — finds Alice via APPROVED relation
-        "who approved the data retention policy?",
-
-        # WHY → graph head — causal chain: audit → policy change
-        "why was the data retention policy changed?",
-
-        # WHAT + disambiguation — strawberry here = project, not fruit
-        "what is the current status of the strawberry project?",
-
-        # WHO → graph head — finds Bob as project owner
-        "who owns the strawberry project?",
-
-        # WHEN → timeline head — version + recency
-        "when was the retention policy last updated?",
-
-        # HOW → semantic + graph — implementation details
-        "how were the new retention controls implemented?",
-    ]
-
-    for question in queries:
-        print("-" * 60)
-        print(f"Q: {question}")
-        result = db.query(question)
-        print(f"A: {result.answer}")
-        print()
-        print(result.explain())
-
-
-if __name__ == "__main__":
-    main()
+for q in questions:
+    print(f"Q: {q}")
+    result = db.query(q)
+    print(f"A: {result.answer}")
+    print(result.explain())
+    print("-" * 50)
