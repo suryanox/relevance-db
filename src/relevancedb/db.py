@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pathlib import Path
 from typing import Union
-from relevancedb.config import ModelConfig
+from relevancedb.config import ModelConfig, default_data_dir
 from relevancedb.explain.result import RelevanceResult
 from relevancedb.ingest.pipeline import IngestPipeline, IngestSummary
 from relevancedb.retrieve.fusion_ranker import FusionRanker
@@ -9,6 +9,7 @@ from relevancedb.retrieve.query_planner import QueryPlanner
 from relevancedb.store.graph_store import GraphStore
 from relevancedb.store.semantic_store import SemanticStore
 from relevancedb.store.timeline_store import TimelineStore
+
 
 class RelevanceDB:
     """
@@ -20,14 +21,15 @@ class RelevanceDB:
 
                    OpenAI:    "gpt-4o-mini", "gpt-4o"
                    Anthropic: "claude-3-haiku-20240307"
-                   Ollama:    "ollama/mistral"  (fully local, no API key)
+                   Ollama:    "ollama/mistral"
                    Groq:      "groq/llama3-8b-8192"
 
-        data_dir:  Where the three DBs are stored on disk.
-                   Default: ./relevancedb_data
+        top_k:    Default number of results per query. Default: 5
+        verbose:  Print progress during ingest.
 
-        top_k:     Default number of results per query. Default: 5
-        verbose:   Print progress during ingest.
+    Data is stored in:
+        Linux/Mac : ~/.local/share/relevancedb
+        Windows   : %APPDATA%/relevancedb
 
     Raises:
         ValueError: If llm_model is not provided and
@@ -37,13 +39,11 @@ class RelevanceDB:
     def __init__(
         self,
         llm_model: str | None = None,
-        data_dir: Union[str, Path] = "./relevancedb_data",
         top_k: int = 5,
         verbose: bool = False,
     ) -> None:
         self.models = ModelConfig(llm_model=llm_model)
-        self.data_dir = Path(data_dir)
-        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.data_dir = default_data_dir()
         self.top_k = top_k
         self.verbose = verbose
 
@@ -119,6 +119,6 @@ class RelevanceDB:
     def __repr__(self) -> str:
         return (
             f"RelevanceDB("
-            f"models={self.models}, "
+            f"llm={self.models.llm_model!r}, "
             f"data_dir={str(self.data_dir)!r})"
         )

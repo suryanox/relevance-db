@@ -1,16 +1,34 @@
 from __future__ import annotations
 import os
+import sys
+from pathlib import Path
 
-# Hardcoded — fast, 33M params, runs fully locally, no API key.
-# User never needs to know or change this.
 EMBED_MODEL = "BAAI/bge-small-en-v1.5"
+
+
+def default_data_dir() -> Path:
+    """
+    Resolve the default data directory following OS conventions.
+
+    Linux / Mac : ~/.local/share/relevancedb   (XDG_DATA_HOME)
+    Windows     : %APPDATA%/relevancedb
+
+    The directory is created if it does not exist.
+    """
+    if sys.platform == "win32":
+        base = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
+    else:
+        # XDG_DATA_HOME — respects user overrides, falls back to ~/.local/share
+        base = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
+
+    data_dir = base / "relevancedb"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir
 
 
 class ModelConfig:
     """
-    Holds model configuration for RelevanceDB.
-
-    Only the LLM model is user-facing. Embedding is an internal detail.
+    Holds configuration for RelevanceDB.
 
     Precedence for llm_model:
       1. Explicit argument to RelevanceDB()
