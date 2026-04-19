@@ -107,7 +107,6 @@ def _merge_paragraphs(paragraphs: list[str], max_chars: int) -> list[str]:
     current = ""
 
     for para in paragraphs:
-        # paragraph itself is too long — split on sentences first
         if len(para) > max_chars:
             if current:
                 result.append(current)
@@ -115,7 +114,6 @@ def _merge_paragraphs(paragraphs: list[str], max_chars: int) -> list[str]:
             result.extend(_split_on_sentences(para, max_chars))
             continue
 
-        # fits alongside current accumulation
         if len(current) + len(para) + 1 <= max_chars:
             current = (current + " " + para).strip() if current else para
         else:

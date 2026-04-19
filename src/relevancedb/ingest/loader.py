@@ -1,11 +1,8 @@
 from __future__ import annotations
-
 from dataclasses import dataclass, field
 from pathlib import Path
 
-
 SUPPORTED_FORMATS = {".txt", ".md", ".markdown"}
-
 
 @dataclass
 class Document:

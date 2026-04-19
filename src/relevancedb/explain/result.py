@@ -1,16 +1,4 @@
-"""
-result.py — the RelevanceResult object returned by db.query().
-
-Everything the user sees comes through here.
-Clean, typed, printable. No internals exposed.
-
-The .explain() method is the key differentiator — it shows exactly
-why each result was retrieved, which head surfaced it, and how
-confident we are. Hallucination audit built in by default.
-"""
-
 from __future__ import annotations
-
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
