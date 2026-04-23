@@ -72,6 +72,20 @@ Three storage heads. One fusion layer. Zero config from the user.
 
 **Intent-weighted fusion.** Results from all heads are combined using a weight matrix derived from query intent not a fixed average. Graph results matter more for `who` queries. Timeline decay matters more for `when` queries.
 
+
+## Example
+
+- Go to examples directory
+
+```bash
+source .venv/bin/activate
+
+poetry install
+
+poetry run python basic.py
+
+```
+
 ## License
 
 MIT
