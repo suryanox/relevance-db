@@ -78,6 +78,7 @@ Three storage heads. One fusion layer. Zero config from the user.
 - Go to examples directory
 
 ```bash
+python3 -m venv .venv
 source .venv/bin/activate
 
 poetry install
